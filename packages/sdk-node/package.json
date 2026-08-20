@@ -1,0 +1,44 @@
+{
+  "name": "@toudaysinghkushwah/sdk-node",
+  "version": "0.1.0",
+  "description": "Enterprise Node.js SDK for AI Agent Reliability, Telemetry Tracing & Governance Platform",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "keywords": [
+    "ai",
+    "agent",
+    "governance",
+    "telemetry",
+    "tracing",
+    "llm",
+    "observability",
+    "evaluations",
+    "hitl",
+    "openai",
+    "langchain"
+  ],
+  "author": "AI Agent Platform Team",
+  "license": "MIT",
+  "publishConfig": {
+    "access": "public"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "build": "tsc",
+    "prepublishOnly": "npm run build"
+  },
+  "dependencies": {
+    "uuid": "^9.0.1"
+  },
+  "devDependencies": {
+    "@types/node": "^20.14.9",
+    "@types/uuid": "^9.0.8",
+    "typescript": "^5.5.4"
+  }
+}

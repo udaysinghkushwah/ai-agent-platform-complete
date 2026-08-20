@@ -1,0 +1,29 @@
+{
+  "name": "ai-agent-platform",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "prisma": {
+    "seed": "ts-node prisma/seed.ts"
+  },
+  "scripts": {
+    "db:generate": "prisma generate --schema=./prisma/schema.prisma",
+    "db:migrate": "prisma migrate dev --schema=./prisma/schema.prisma",
+    "db:studio": "prisma studio --schema=./prisma/schema.prisma",
+    "db:seed": "ts-node prisma/seed.ts",
+    "build": "npm run db:generate && npm run build --workspaces --if-present",
+    "start:api": "npm --workspace=@aap/api run start:dev",
+    "start:worker": "npm --workspace=@aap/worker run start:dev",
+    "start:dashboard": "npm --workspace=@aap/dashboard run dev",
+    "start:integration": "npm --workspace=@aap/demo-agent run start",
+    "run:integration-cli": "npm --workspace=@aap/demo-agent run run:cli",
+    "run:python-agent": "python3 packages/sdk-python/examples/demo_agent.py"
+  },
+  "devDependencies": {
+    "prisma": "^5.19.1",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.5.4"
+  }
+}

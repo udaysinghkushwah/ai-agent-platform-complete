@@ -1,0 +1,19 @@
+{
+  "name": "@aap/cli",
+  "version": "0.1.0",
+  "description": "Command-line tool for AI Agent Platform CI/CD Prompt Regression Gating",
+  "main": "dist/index.js",
+  "bin": {
+    "aap": "bin/aap.js"
+  },
+  "scripts": {
+    "build": "tsc"
+  },
+  "dependencies": {
+    "commander": "^12.1.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.14.9",
+    "typescript": "^5.5.4"
+  }
+}

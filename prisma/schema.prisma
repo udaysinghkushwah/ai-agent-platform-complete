@@ -1,0 +1,558 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum OrgRole {
+  OWNER
+  ADMIN
+  DEVELOPER
+  ANALYST
+  SECURITY_REVIEWER
+  VIEWER
+}
+
+model Organization {
+  id        String   @id @default(uuid())
+  name      String
+  slug      String   @unique
+  plan      String   @default("free")
+  status    String   @default("active")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  members  OrganizationMember[]
+  projects Project[]
+
+  @@map("organizations")
+}
+
+model User {
+  id           String   @id @default(uuid())
+  email        String   @unique
+  passwordHash String
+  name         String?
+  status       String   @default("active")
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  memberships OrganizationMember[]
+
+  @@map("users")
+}
+
+model OrganizationMember {
+  id             String   @id @default(uuid())
+  organizationId String
+  userId         String
+  role           OrgRole
+  createdAt      DateTime @default(now())
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([organizationId, userId])
+  @@index([userId])
+  @@map("organization_members")
+}
+
+model Project {
+  id             String   @id @default(uuid())
+  organizationId String
+  name           String
+  slug           String
+  environment    String   @default("production")
+  status         String   @default("active")
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  // Data privacy controls (MVP-5). Enforced by the ingestion worker, not
+  // just documented here — see apps/worker/src/privacy.ts.
+  disableRawPayloadStorage Boolean  @default(false)
+  sensitiveFieldMasks      String[] @default([]) // field names masked in span metadata before storage, e.g. ["ssn", "email"]
+  retentionDays            Int? // traces older than this are purged by a scheduled job; null = keep forever
+  webhookUrl               String?
+  slackWebhookUrl          String?
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  apiKeys      ApiKey[]
+
+  @@unique([organizationId, slug])
+  @@index([organizationId])
+  @@map("projects")
+}
+
+model ApiKey {
+  id         String    @id @default(uuid())
+  projectId  String
+  name       String    @default("default")
+  keyPrefix  String
+  keyHash    String
+  scopes     Json      @default("[]")
+  createdAt  DateTime  @default(now())
+  expiresAt  DateTime?
+  revokedAt  DateTime?
+
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@index([projectId])
+  @@index([keyPrefix])
+  @@map("api_keys")
+}
+
+// Immutable security/action history. Written to on every sensitive mutation
+// starting in MVP-0 so the habit — and the schema — are in place before
+// governance features (MVP-5) start relying on it.
+model AuditEvent {
+  id             String   @id @default(uuid())
+  organizationId String
+  projectId      String? // null for org-level events (org created, member role changed) that aren't tied to one project
+  actorType      String   // "user" | "api_key" | "system"
+  actorId        String
+  action         String   // e.g. "organization.created", "api_key.revoked"
+  resourceType   String
+  resourceId     String
+  metadata       Json?
+  createdAt      DateTime @default(now())
+
+  @@index([organizationId, createdAt])
+  @@index([projectId, createdAt])
+  @@index([resourceType, resourceId])
+  @@map("audit_events")
+}
+
+// ── MVP-1: Telemetry ────────────────────────────────────────────────────
+
+// One row per logical agent run. traceId is the SDK/customer-supplied ID;
+// (projectId, traceId) is unique so retries from the SDK are idempotent at
+// the trace level too, not just the span level.
+model Trace {
+  id                 String    @id @default(uuid())
+  organizationId     String
+  projectId          String
+  traceId            String
+  sessionId          String?
+  agentId            String?
+  agentVersion       String?
+  environment        String?
+  status             String    @default("in_progress") // in_progress | ok | error
+  startedAt          DateTime
+  endedAt            DateTime?
+  durationMs         Int?
+  totalCost          Decimal?  @db.Decimal(12, 6)
+  totalInputTokens   Int?
+  totalOutputTokens  Int?
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+
+  spans Span[]
+
+  @@unique([projectId, traceId])
+  @@index([organizationId, projectId, startedAt])
+  @@map("traces")
+}
+
+// One row per span (an LLM call, tool call, retrieval step, or generic
+// unit of work) within a trace. eventId is the SDK-generated idempotency
+// key — a unique constraint on it means retried sends from the SDK never
+// create duplicate rows, they just no-op.
+model Span {
+  id               String   @id @default(uuid())
+  traceDbId        String
+  organizationId   String
+  projectId        String
+  spanId           String
+  parentSpanId     String?
+  eventId          String   @unique
+  eventType        String   // "llm" | "retrieval" | "tool" | "generic"
+  name             String?
+  provider         String?
+  model            String?
+  status           String   @default("ok") // ok | error
+  errorMessage     String?
+  startedAt        DateTime
+  durationMs       Int?
+  inputTokens      Int?
+  outputTokens     Int?
+  cost             Decimal? @db.Decimal(12, 6)
+  metadata         Json?
+  payloadReference String?  // pointer into object storage for large raw prompt/output; never the raw text itself
+  schemaVersion    String   @default("1")
+  createdAt        DateTime @default(now())
+
+  trace Trace @relation(fields: [traceDbId], references: [id], onDelete: Cascade)
+
+  @@index([organizationId, projectId, startedAt])
+  @@index([traceDbId])
+  @@map("spans")
+}
+
+// Anything the ingestion worker couldn't process — malformed schema, unknown
+// project, whatever. Nothing gets silently dropped; it lands here for
+// inspection/replay instead of corrupting trace data or crashing the worker.
+model IngestionDeadLetter {
+  id             String   @id @default(uuid())
+  organizationId String?
+  projectId      String?
+  reason         String
+  rawPayload     Json
+  createdAt      DateTime @default(now())
+
+  @@index([projectId, createdAt])
+  @@map("ingestion_dead_letters")
+}
+
+// ── MVP-3: Evaluation ───────────────────────────────────────────────────
+
+model Dataset {
+  id             String   @id @default(uuid())
+  organizationId String
+  projectId      String
+  name           String
+  description    String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  cases DatasetCase[]
+  runs  EvaluationRun[]
+
+  @@unique([projectId, name])
+  @@index([projectId])
+  @@map("datasets")
+}
+
+// One golden-set row. caseKey is the customer-facing stable ID (e.g.
+// "refund-policy-01") — used to match a submitted output back to the right
+// case when a run is created, so re-running the same dataset never
+// silently reorders or mismatches cases.
+model DatasetCase {
+  id             String   @id @default(uuid())
+  datasetId      String
+  caseKey        String
+  input          Json
+  expectedOutput Json?
+  context        Json?
+  metadata       Json?
+  tags           String[] @default([])
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  dataset Dataset            @relation(fields: [datasetId], references: [id], onDelete: Cascade)
+  results EvaluationResult[]
+
+  @@unique([datasetId, caseKey])
+  @@index([datasetId])
+  @@map("dataset_cases")
+}
+
+enum EvaluatorType {
+  SCHEMA_VALID
+  EXACT_MATCH
+  SEMANTIC_MATCH
+  TOOL_SUCCESS
+  LLM_JUDGE
+  CONTEXT_RELEVANCE
+  GROUNDEDNESS
+  RECALL_AT_K
+  RANKING_QUALITY
+}
+
+enum RunStatus {
+  QUEUED
+  RUNNING
+  COMPLETED
+  FAILED
+}
+
+enum RunVerdict {
+  PASS
+  WARN
+  FAIL
+}
+
+// A run scores a batch of customer-submitted outputs against a dataset's
+// expected outputs. The platform does not invoke the customer's agent
+// itself for MVP-3 — the customer runs their own harness and submits
+// results here, same shape as Braintrust/LangSmith-style eval platforms.
+model EvaluationRun {
+  id               String      @id @default(uuid())
+  organizationId   String
+  projectId        String
+  datasetId        String
+  name             String?
+  agentId          String?
+  agentVersion     String?
+  evaluatorConfig  Json // the EvaluatorConfig[] used for this run, stored so results are reproducible/auditable
+  status           RunStatus   @default(QUEUED)
+  verdict          RunVerdict?
+  overallScore     Float?
+  passRate         Float?
+  totalCases       Int         @default(0)
+  completedCases   Int         @default(0)
+  degradedCases    Int         @default(0) // cases where an evaluator (e.g. LLM judge) failed to run — excluded from score, not counted as fail
+  avgCostPerCase   Float? // average of customer-submitted per-case cost, if provided — powers regression cost-spike checks
+  startedAt        DateTime?
+  completedAt      DateTime?
+  createdAt        DateTime    @default(now())
+  createdBy        String?
+
+  dataset Dataset            @relation(fields: [datasetId], references: [id])
+  results EvaluationResult[]
+
+  @@index([projectId, createdAt])
+  @@map("evaluation_runs")
+}
+
+model EvaluationResult {
+  id               String        @id @default(uuid())
+  evaluationRunId  String
+  datasetCaseId    String
+  evaluatorType    EvaluatorType
+  evaluatorVersion String        @default("1")
+  score            Float? // 0..1, null when degraded
+  passed           Boolean
+  degraded         Boolean       @default(false) // evaluator provider failed — don't let this corrupt the run's score
+  reasoning        String?
+  submittedOutput  Json?
+  submittedCost    Float? // optional customer-reported cost for producing this case's output — powers regression cost checks
+  judgeModel       String?
+  createdAt        DateTime      @default(now())
+
+  run         EvaluationRun @relation(fields: [evaluationRunId], references: [id], onDelete: Cascade)
+  datasetCase DatasetCase   @relation(fields: [datasetCaseId], references: [id])
+
+  @@index([evaluationRunId])
+  @@index([datasetCaseId])
+  @@map("evaluation_results")
+}
+
+// ── MVP-4: Regression & RAG evaluation ──────────────────────────────────
+
+enum VersionStatus {
+  CANDIDATE
+  APPROVED
+  ARCHIVED
+}
+
+model Prompt {
+  id             String   @id @default(uuid())
+  organizationId String
+  projectId      String
+  name           String
+  createdAt      DateTime @default(now())
+
+  versions PromptVersion[]
+
+  @@unique([projectId, name])
+  @@index([projectId])
+  @@map("prompts")
+}
+
+// Versions are immutable once created — editing content means creating a
+// new version, never mutating an existing one. That's what makes a
+// regression check reproducible after the fact: the exact content that
+// produced a given evaluation run's scores never changes under it.
+model PromptVersion {
+  id        String        @id @default(uuid())
+  promptId  String
+  version   Int
+  content   String
+  metadata  Json?
+  status    VersionStatus @default(CANDIDATE)
+  createdAt DateTime      @default(now())
+  createdBy String?
+
+  prompt Prompt @relation(fields: [promptId], references: [id], onDelete: Cascade)
+
+  @@unique([promptId, version])
+  @@index([promptId])
+  @@map("prompt_versions")
+}
+
+// Agents don't have a single "content" blob the way a prompt does, so this
+// is a lighter-weight, free-form version marker (config snapshot / commit
+// SHA / description) rather than a content registry — the anchor a
+// regression check and an EvaluationRun's agentVersion field both point at.
+model AgentVersion {
+  id             String        @id @default(uuid())
+  organizationId String
+  projectId      String
+  agentId        String
+  version        String
+  description    String?
+  status         VersionStatus @default(CANDIDATE)
+  metadata       Json?
+  createdAt      DateTime      @default(now())
+  createdBy      String?
+
+  @@unique([projectId, agentId, version])
+  @@index([projectId, agentId])
+  @@map("agent_versions")
+}
+
+model RegressionPolicy {
+  id                 String   @id @default(uuid())
+  organizationId     String
+  projectId          String
+  name               String
+  // Any case where one of these evaluator types fails is an automatic FAIL
+  // for the whole check, regardless of aggregate pass-rate math — this is
+  // how a single safety-critical case can veto an otherwise-fine run.
+  criticalEvaluators EvaluatorType[] @default([])
+  maxPassRateDrop    Float    @default(0.05) // drop beyond this from baseline -> FAIL
+  warnPassRateDrop   Float    @default(0.02) // drop beyond this (but under maxPassRateDrop) -> WARN
+  maxCostIncreasePct Float    @default(0.20) // cost/case increase beyond this -> WARN
+  isDefault          Boolean  @default(false)
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  @@unique([projectId, name])
+  @@index([projectId])
+  @@map("regression_policies")
+}
+
+model RegressionCheck {
+  id               String      @id @default(uuid())
+  organizationId   String
+  projectId        String
+  policyId         String?
+  baselineRunId    String
+  candidateRunId   String
+  verdict          RunVerdict
+  baselinePassRate Float?
+  candidatePassRate Float?
+  passRateDelta    Float?
+  baselineCostPerCase  Float?
+  candidateCostPerCase Float?
+  costIncreasePct  Float?
+  criticalFailures Json? // [{ caseKey, evaluatorType, reasoning }]
+  reasoning        String
+  createdAt        DateTime    @default(now())
+  createdBy        String?
+
+  @@index([projectId, createdAt])
+  @@index([candidateRunId])
+  @@map("regression_checks")
+}
+
+// ── MVP-5: Governance, alerts & audit ───────────────────────────────────
+
+enum ActiveStatus {
+  ACTIVE
+  PAUSED
+}
+
+enum AlertMetric {
+  ERROR_RATE
+  LATENCY_P95
+  COST
+  EVAL_SCORE
+  EVAL_REGRESSION
+  TOOL_FAILURE_RATE
+}
+
+enum AlertComparator {
+  GT
+  GTE
+  LT
+  LTE
+}
+
+enum AlertEventStatus {
+  OPEN
+  ACKNOWLEDGED
+  RESOLVED
+}
+
+model AlertRule {
+  id             String          @id @default(uuid())
+  organizationId String
+  projectId      String
+  name           String
+  metric         AlertMetric
+  comparator     AlertComparator
+  threshold      Float
+  windowMinutes  Int             @default(15)
+  // cooldown avoids re-notifying every check cycle while a condition stays
+  // breached — a new AlertEvent only opens once the previous one resolves
+  // or this many minutes have passed, whichever first.
+  cooldownMinutes Int            @default(30)
+  notifyEmails   String[]        @default([])
+  status         ActiveStatus    @default(ACTIVE)
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+  createdBy      String?
+
+  events AlertEvent[]
+
+  @@unique([projectId, name])
+  @@index([projectId, status])
+  @@map("alert_rules")
+}
+
+model AlertEvent {
+  id           String            @id @default(uuid())
+  alertRuleId  String
+  organizationId String
+  projectId    String
+  metricValue  Float
+  threshold    Float
+  message      String
+  status       AlertEventStatus  @default(OPEN)
+  triggeredAt  DateTime          @default(now())
+  resolvedAt   DateTime?
+  notified     Boolean           @default(false)
+  notifyError  String? // set when email delivery failed, so it's visible instead of silently swallowed
+
+  rule AlertRule @relation(fields: [alertRuleId], references: [id], onDelete: Cascade)
+
+  @@index([projectId, status, triggeredAt])
+  @@index([alertRuleId, status])
+  @@map("alert_events")
+}
+
+// Fail-closed tool-execution policy, checked by the customer's agent
+// runtime before it calls a tool (POST /projects/:id/policy-checks).
+// Deliberately separate from RegressionPolicy above — this governs runtime
+// tool execution, that governs eval-based deploy gating.
+model GovernancePolicy {
+  id                   String       @id @default(uuid())
+  organizationId       String
+  projectId            String
+  name                 String
+  allowedTools         String[]     @default([]) // empty = no allow-list restriction (everything not blocked/approval-gated is allowed)
+  blockedTools         String[]     @default([])
+  requireApprovalTools String[]     @default([])
+  restrictedEnvironments String[]   @default([]) // environments where this policy's restrictions apply; empty = all environments
+  maxParameterValues   Json?        // { [toolName]: { [paramName]: maxNumericValue } }
+  status               ActiveStatus @default(ACTIVE)
+  createdAt            DateTime     @default(now())
+  updatedAt            DateTime     @updatedAt
+  createdBy            String?
+
+  @@unique([projectId, name])
+  @@index([projectId, status])
+  @@map("governance_policies")
+}
+
+model PendingApproval {
+  id             String    @id @default(uuid())
+  organizationId String
+  projectId      String
+  traceId        String?
+  toolName       String
+  environment    String    @default("production")
+  parameters     Json?
+  status         String    @default("PENDING") // PENDING | APPROVED | REJECTED
+  reason         String?
+  requestedAt    DateTime  @default(now())
+  resolvedAt     DateTime?
+  resolvedBy     String?
+
+  @@index([projectId, status, requestedAt])
+  @@map("pending_approvals")
+}

@@ -1,0 +1,24 @@
+{
+  "name": "@aap/demo-agent",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Integration sample application demonstrating customer agent instrumentation and governance checks",
+  "main": "src/index.ts",
+  "scripts": {
+    "start": "ts-node src/index.ts",
+    "dev": "ts-node-dev --respawn --transpile-only src/index.ts",
+    "run:cli": "ts-node src/index.ts --cli"
+  },
+  "dependencies": {
+    "@aap/sdk-node": "*",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2"
+  },
+  "devDependencies": {
+    "@types/express": "^4.17.21",
+    "@types/node": "^20.14.9",
+    "ts-node": "^10.9.2",
+    "ts-node-dev": "^2.0.0",
+    "typescript": "^5.5.4"
+  }
+}

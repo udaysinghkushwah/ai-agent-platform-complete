@@ -1,0 +1,113 @@
+version: "3.9"
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: aap-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: aap
+      POSTGRES_PASSWORD: aap_production_password
+      POSTGRES_DB: aap_prod
+    ports:
+      - "5432:5432"
+    volumes:
+      - aap_postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U aap -d aap_prod"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    container_name: aap-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - aap_redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  api:
+    build:
+      context: .
+      target: api
+    container_name: aap-api
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    ports:
+      - "3000:3000"
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      DATABASE_URL: postgresql://aap:aap_production_password@postgres:5432/aap_prod?schema=public
+      REDIS_URL: redis://redis:6379
+      JWT_SECRET: super-secret-production-jwt-token-key-32chars
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:3000/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  worker:
+    build:
+      context: .
+      target: worker
+    container_name: aap-worker
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      api:
+        condition: service_healthy
+    environment:
+      NODE_ENV: production
+      DATABASE_URL: postgresql://aap:aap_production_password@postgres:5432/aap_prod?schema=public
+      REDIS_URL: redis://redis:6379
+
+  dashboard:
+    build:
+      context: .
+      target: dashboard
+    container_name: aap-dashboard
+    restart: unless-stopped
+    depends_on:
+      api:
+        condition: service_healthy
+    ports:
+      - "3001:3001"
+    environment:
+      NODE_ENV: production
+      PORT: 3001
+      NEXT_PUBLIC_API_URL: http://localhost:3000
+
+  demo-agent:
+    build:
+      context: .
+      target: demo-agent
+    container_name: aap-demo-agent
+    restart: unless-stopped
+    depends_on:
+      api:
+        condition: service_healthy
+    ports:
+      - "4000:4000"
+    environment:
+      NODE_ENV: production
+      PORT: 4000
+      AAP_BASE_URL: http://api:3000
+
+volumes:
+  aap_postgres_data:
+  aap_redis_data:

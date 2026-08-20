@@ -1,0 +1,34 @@
+# Dependencies
+node_modules/
+/.pnp
+.pnp.js
+
+# Testing & Coverage
+coverage/
+
+# Production & Build outputs
+dist/
+build/
+.next/
+out/
+*.tsbuildinfo
+
+# Environment & Secrets
+.env
+.env*.local
+.env.production
+.env.staging
+
+# Logs & Database Dumps
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+dump.rdb
+*.rdb
+*.sqlite
+*.db
+
+# Operating System
+.DS_Store
+Thumbs.db
