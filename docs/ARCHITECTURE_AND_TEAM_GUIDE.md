@@ -61,21 +61,26 @@ flowchart TB
 
 ## 🖥️ 2. Control Plane Dashboard Visual Interface Walkthrough
 
-| Standard App View | Interactive Studio View |
-|---|---|
-| ![Alert Rules & HITL Safety Guardrails Queue](assets/images/alerts_governance.png) | ![Connect Your Agent Onboarding & Telemetry SDK](assets/images/onboarding_sdk.png) |
-
-````carousel
-![Alert Rules & HITL Safety Guardrails Queue](assets/images/alerts_governance.png)
-<!-- slide -->
-![Connect Your Agent Onboarding & Telemetry SDK](assets/images/onboarding_sdk.png)
-<!-- slide -->
+### 📊 Main Observability & Trace Analytics
 ![AI Observability Dashboard Main Overview](assets/images/dashboard_main.png)
-<!-- slide -->
+
+<details open>
+<summary><b>🔍 View Full Interface Gallery (Prompt Sandbox, Governance, Slack & SDK Onboarding)</b></summary>
+<br/>
+
+#### 🛡️ Alert Rules & HITL Safety Guardrails Queue
+![Alert Rules & HITL Safety Guardrails Queue](assets/images/alerts_governance.png)
+
+#### 🧪 Prompt Sandbox & Benchmark Studio
 ![Prompt Sandbox & Benchmark Studio](assets/images/prompts_playground.png)
-<!-- slide -->
+
+#### 💬 Slack Block Kit & Webhooks Channel
 ![Slack Block Kit & Webhooks Integrations Channel](assets/images/integrations_slack.png)
-````
+
+#### ⚡ Connect Your Agent Onboarding & Telemetry SDK
+![Connect Your Agent Onboarding & Telemetry SDK](assets/images/onboarding_sdk.png)
+
+</details>
 
 ---
 

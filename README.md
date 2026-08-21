@@ -76,17 +76,26 @@ ai-agent-platform-complete/
 
 ## 🖥️ 2. Dashboard UI Interface Walkthrough
 
-````carousel
+### 📊 AI Observability & Trace Analytics
 ![AI Observability Dashboard Main Overview](docs/assets/images/dashboard_main.png)
-<!-- slide -->
+
+<details open>
+<summary><b>🔍 View Full Interface Gallery (Prompt Sandbox, Governance, Slack & SDK Onboarding)</b></summary>
+<br/>
+
+#### 🧪 Prompt Sandbox & Benchmark Studio
 ![Prompt Sandbox & Benchmark Studio](docs/assets/images/prompts_playground.png)
-<!-- slide -->
+
+#### 🛡️ Human-in-the-Loop Governance & Alerts Queue
 ![Human-in-the-Loop Governance & Alerts Queue](docs/assets/images/alerts_governance.png)
-<!-- slide -->
+
+#### 💬 Slack Block Kit & Webhooks Integrations
 ![Slack Block Kit & Webhooks Integrations Channel](docs/assets/images/integrations_slack.png)
-<!-- slide -->
+
+#### ⚡ Code Integration Onboarding (Node & Python SDKs)
 ![Code Integration Onboarding for Node & Python SDKs](docs/assets/images/onboarding_sdk.png)
-````
+
+</details>
 
 ---
 
