@@ -321,5 +321,20 @@ GET    /health                                  -> Liveness & Readiness health p
 
 ---
 
-## 📜 8. License
+## 📚 8. Master Platform Architectural Guides
+
+For technical deep-dives into specific subsystems, consult the comprehensive architectural guides in the `docs/` directory:
+
+| Architecture Guide | Focus & Subsystems | Document Link |
+| :--- | :--- | :--- |
+| 🏛️ **Architecture & Team Guide** | Core NestJS/Next.js stack, Redis Pub/Sub, BullMQ, Prisma schema & DB design | [ARCHITECTURE_AND_TEAM_GUIDE.md](docs/ARCHITECTURE_AND_TEAM_GUIDE.md) |
+| 💰 **FinOps & Cost Optimization** | Model cascading, exact/semantic caching, context pruning, batch APIs, vLLM | [ENTERPRISE_AI_COST_OPTIMIZATION_FINOPS_GUIDE.md](docs/ENTERPRISE_AI_COST_OPTIMIZATION_FINOPS_GUIDE.md) |
+| 🛡️ **Governance & HITL Safety** | Tool policy interceptors, Slack Block Kit 1-click approvals, PII regex redactor, SOC2 audit | [GOVERNANCE_AND_HITL_SAFETY_GUIDE.md](docs/GOVERNANCE_AND_HITL_SAFETY_GUIDE.md) |
+| 🔍 **RAG Pipeline & Quality Evals** | Hybrid BM25+Vector search, Cross-Encoder reranking, Ragas triad evals, `@aap/cli` CI/CD gate | [RAG_EVALUATION_AND_RERANKING_GUIDE.md](docs/RAG_EVALUATION_AND_RERANKING_GUIDE.md) |
+| ⚡ **Telemetry & Observability** | Non-blocking ingestion, SDK async batching, Redis SSE streaming, semantic trace search | [TELEMETRY_AND_OBSERVABILITY_GUIDE.md](docs/TELEMETRY_AND_OBSERVABILITY_GUIDE.md) |
+| 🚀 **vLLM Serving & Quantization** | PagedAttention, prefix caching, PEFT/LoRA fine-tuning, AWQ 4-bit quantization, VRAM math | [MODEL_SERVING_AND_QUANTIZATION_GUIDE.md](docs/MODEL_SERVING_AND_QUANTIZATION_GUIDE.md) |
+
+---
+
+## 📜 9. License
 MIT License. Developed for enterprise AI Agent reliability, governance, and observability.
