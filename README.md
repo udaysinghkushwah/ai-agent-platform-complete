@@ -321,25 +321,5 @@ GET    /health                                  -> Liveness & Readiness health p
 
 ---
 
-## 📚 8. Master Platform Architectural Guides
-
-For technical deep-dives into specific subsystems, consult the comprehensive architectural guides in the `docs/` directory:
-
-| Architecture Guide | Focus & Subsystems | Document Link |
-| :--- | :--- | :--- |
-| 🏛️ **Architecture & Team Guide** | Core NestJS/Next.js stack, Redis Pub/Sub, BullMQ, Prisma schema & DB design | [ARCHITECTURE_AND_TEAM_GUIDE.md](docs/ARCHITECTURE_AND_TEAM_GUIDE.md) |
-| 💰 **FinOps & Cost Optimization** | Model cascading, exact/semantic caching, context pruning, batch APIs, vLLM | [ENTERPRISE_AI_COST_OPTIMIZATION_FINOPS_GUIDE.md](docs/ENTERPRISE_AI_COST_OPTIMIZATION_FINOPS_GUIDE.md) |
-| 🛡️ **Governance & HITL Safety** | Tool policy interceptors, Slack Block Kit 1-click approvals, PII regex redactor, SOC2 audit | [GOVERNANCE_AND_HITL_SAFETY_GUIDE.md](docs/GOVERNANCE_AND_HITL_SAFETY_GUIDE.md) |
-| 🔍 **RAG Pipeline & Quality Evals** | Hybrid BM25+Vector search, Cross-Encoder reranking, Ragas triad evals, `@aap/cli` CI/CD gate | [RAG_EVALUATION_AND_RERANKING_GUIDE.md](docs/RAG_EVALUATION_AND_RERANKING_GUIDE.md) |
-| ⚡ **Telemetry & Observability** | Non-blocking ingestion, SDK async batching, Redis SSE streaming, semantic trace search | [TELEMETRY_AND_OBSERVABILITY_GUIDE.md](docs/TELEMETRY_AND_OBSERVABILITY_GUIDE.md) |
-| 🚀 **vLLM Serving & Quantization** | PagedAttention, prefix caching, PEFT/LoRA fine-tuning, AWQ 4-bit quantization, VRAM math | [MODEL_SERVING_AND_QUANTIZATION_GUIDE.md](docs/MODEL_SERVING_AND_QUANTIZATION_GUIDE.md) |
-| 🤖 **Agentic AI Interview Q&A** | Top 25 Architect Q&As on ReAct loops, LangGraph vs Temporal, MCP protocols, Multi-agent swarms | [AGENTIC_AI_INTERVIEW_QUESTIONS_AND_ANSWERS.md](docs/AGENTIC_AI_INTERVIEW_QUESTIONS_AND_ANSWERS.md) |
-| 🚀 **Zero-to-Hero AI Architect Roadmap** | Complete Phase 0 to Stage 6 roadmap with 8 flow diagrams, math formulas, & 40 Q&As | [ZERO_TO_HERO_AI_ARCHITECT_INTERVIEW_ROADMAP.md](docs/ZERO_TO_HERO_AI_ARCHITECT_INTERVIEW_ROADMAP.md) |
-| 🏛️ **Comprehensive AI Architect Blueprint** | Complete master blueprint covering all Tiers 1-45 & Stage 6 with 7-step evaluation matrix | [ENTERPRISE_AI_LLM_ARCHITECT_COMPREHENSIVE_BLUEPRINT.md](docs/ENTERPRISE_AI_LLM_ARCHITECT_COMPREHENSIVE_BLUEPRINT.md) |
-| 🏆 **Full Master Tier-by-Tier Blueprint** | Exhaustive breakdown of Tiers 1-45 individually with formulas, code, & flow diagrams | [FULL_MASTER_AI_LLM_ARCHITECT_TIER_BY_TIER_BLUEPRINT.md](docs/FULL_MASTER_AI_LLM_ARCHITECT_TIER_BY_TIER_BLUEPRINT.md) |
-| 📚 **Official Reference Directory** | Complete reference index of ArXiv research papers, framework docs, & codebase files | [OFFICIAL_AI_LLM_ARCHITECT_REFERENCE_DIRECTORY.md](docs/OFFICIAL_AI_LLM_ARCHITECT_REFERENCE_DIRECTORY.md) |
-
----
-
-## 📜 9. License
+## 📜 8. License
 MIT License. Developed for enterprise AI Agent reliability, governance, and observability.
