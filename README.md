@@ -334,6 +334,7 @@ For technical deep-dives into specific subsystems, consult the comprehensive arc
 | ⚡ **Telemetry & Observability** | Non-blocking ingestion, SDK async batching, Redis SSE streaming, semantic trace search | [TELEMETRY_AND_OBSERVABILITY_GUIDE.md](docs/TELEMETRY_AND_OBSERVABILITY_GUIDE.md) |
 | 🚀 **vLLM Serving & Quantization** | PagedAttention, prefix caching, PEFT/LoRA fine-tuning, AWQ 4-bit quantization, VRAM math | [MODEL_SERVING_AND_QUANTIZATION_GUIDE.md](docs/MODEL_SERVING_AND_QUANTIZATION_GUIDE.md) |
 | 🤖 **Agentic AI Interview Q&A** | Top 25 Architect Q&As on ReAct loops, LangGraph vs Temporal, MCP protocols, Multi-agent swarms | [AGENTIC_AI_INTERVIEW_QUESTIONS_AND_ANSWERS.md](docs/AGENTIC_AI_INTERVIEW_QUESTIONS_AND_ANSWERS.md) |
+| 🚀 **Zero-to-Hero AI Architect Roadmap** | Complete Phase 0 to Stage 6 roadmap with 8 flow diagrams, math formulas, & 40 Q&As | [ZERO_TO_HERO_AI_ARCHITECT_INTERVIEW_ROADMAP.md](docs/ZERO_TO_HERO_AI_ARCHITECT_INTERVIEW_ROADMAP.md) |
 
 ---
 
