@@ -333,6 +333,7 @@ For technical deep-dives into specific subsystems, consult the comprehensive arc
 | 🔍 **RAG Pipeline & Quality Evals** | Hybrid BM25+Vector search, Cross-Encoder reranking, Ragas triad evals, `@aap/cli` CI/CD gate | [RAG_EVALUATION_AND_RERANKING_GUIDE.md](docs/RAG_EVALUATION_AND_RERANKING_GUIDE.md) |
 | ⚡ **Telemetry & Observability** | Non-blocking ingestion, SDK async batching, Redis SSE streaming, semantic trace search | [TELEMETRY_AND_OBSERVABILITY_GUIDE.md](docs/TELEMETRY_AND_OBSERVABILITY_GUIDE.md) |
 | 🚀 **vLLM Serving & Quantization** | PagedAttention, prefix caching, PEFT/LoRA fine-tuning, AWQ 4-bit quantization, VRAM math | [MODEL_SERVING_AND_QUANTIZATION_GUIDE.md](docs/MODEL_SERVING_AND_QUANTIZATION_GUIDE.md) |
+| 🤖 **Agentic AI Interview Q&A** | Top 25 Architect Q&As on ReAct loops, LangGraph vs Temporal, MCP protocols, Multi-agent swarms | [AGENTIC_AI_INTERVIEW_QUESTIONS_AND_ANSWERS.md](docs/AGENTIC_AI_INTERVIEW_QUESTIONS_AND_ANSWERS.md) |
 
 ---
 
