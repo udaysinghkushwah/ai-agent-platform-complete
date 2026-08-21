@@ -7,7 +7,7 @@ This document provides a complete technical deep-dive into the architecture, tec
 
 ## 📐 1. Visual Platform Architecture
 
-![Platform Architecture Diagram](/Users/uday/Documents/AI/ai-agent-platform-complete/docs/assets/images/architecture_diagram.png)
+![Platform Architecture Diagram](assets/images/architecture_diagram.png)
 
 ```mermaid
 flowchart TB
@@ -61,20 +61,20 @@ flowchart TB
 
 ## 🖥️ 2. Control Plane Dashboard Visual Interface Walkthrough
 
-``| Standard App View | Interactive Studio View |
+| Standard App View | Interactive Studio View |
 |---|---|
-| ![Alert Rules & HITL Safety Guardrails Queue](/Users/uday/Documents/AI/ai-agent-platform-complete/docs/assets/images/alerts_governance.png) | ![Connect Your Agent Onboarding & Telemetry SDK](/Users/uday/Documents/AI/ai-agent-platform-complete/docs/assets/images/onboarding_sdk.png) |
+| ![Alert Rules & HITL Safety Guardrails Queue](assets/images/alerts_governance.png) | ![Connect Your Agent Onboarding & Telemetry SDK](assets/images/onboarding_sdk.png) |
 
 ````carousel
-![Alert Rules & HITL Safety Guardrails Queue](/Users/uday/Documents/AI/ai-agent-platform-complete/docs/assets/images/alerts_governance.png)
+![Alert Rules & HITL Safety Guardrails Queue](assets/images/alerts_governance.png)
 <!-- slide -->
-![Connect Your Agent Onboarding & Telemetry SDK](/Users/uday/Documents/AI/ai-agent-platform-complete/docs/assets/images/onboarding_sdk.png)
+![Connect Your Agent Onboarding & Telemetry SDK](assets/images/onboarding_sdk.png)
 <!-- slide -->
-![AI Observability Dashboard Main Overview](/Users/uday/Documents/AI/ai-agent-platform-complete/docs/assets/images/dashboard_main.png)
+![AI Observability Dashboard Main Overview](assets/images/dashboard_main.png)
 <!-- slide -->
-![Prompt Sandbox & Benchmark Studio](/Users/uday/Documents/AI/ai-agent-platform-complete/docs/assets/images/prompts_playground.png)
+![Prompt Sandbox & Benchmark Studio](assets/images/prompts_playground.png)
 <!-- slide -->
-![Slack Block Kit & Webhooks Integrations Channel](/Users/uday/Documents/AI/ai-agent-platform-complete/docs/assets/images/integrations_slack.png)
+![Slack Block Kit & Webhooks Integrations Channel](assets/images/integrations_slack.png)
 ````
 
 ---

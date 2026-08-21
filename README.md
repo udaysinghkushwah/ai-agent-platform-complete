@@ -6,7 +6,55 @@ A production-grade, multi-tenant enterprise control plane and observability plat
 
 ## 📐 1. Visual Platform Architecture
 
-![Platform Architecture Diagram](/Users/uday/Documents/AI/ai-agent-platform-complete/docs/assets/images/architecture_diagram.png)
+![Platform Architecture Diagram](docs/assets/images/architecture_diagram.png)
+
+```mermaid
+flowchart TB
+    subgraph ClientLayer ["Agent Layer (Node.js & Python SDKs)"]
+        NodeSDK["@aap/sdk-node"]
+        PySDK["aap-sdk (Python)"]
+        LangChain["LangChain / LlamaIndex"]
+    end
+
+    subgraph IngestionLayer ["Ingestion & Control Plane"]
+        API["NestJS API Server (Port 3000)"]
+        Auth["TenantGuard / Auth JWT"]
+        Health["HealthController (/health)"]
+    end
+
+    subgraph AsyncWorkerLayer ["Queue & Async Processing"]
+        Redis["Redis 7 (Pub/Sub & BullMQ)"]
+        Worker["BullMQ Worker Processor"]
+        RAGEval["RAG & LLM Evaluators"]
+    end
+
+    subgraph DataStorage ["Database & Storage"]
+        Postgres[(PostgreSQL 16 Database)]
+        Prisma["Prisma ORM (Schema & Seed)"]
+    end
+
+    subgraph PresentationLayer ["Observability Control Plane"]
+        Dashboard["Next.js 14 Control Plane (Port 3001)"]
+        Slack["Slack Block Kit Webhooks"]
+        CLI["@aap/cli (CI/CD Regression Gate)"]
+    end
+
+    NodeSDK -->|POST /ingest (Async 202)| API
+    PySDK -->|POST /ingest (Async 202)| API
+    LangChain --> PySDK
+
+    API -->|Enqueue Jobs| Redis
+    Redis -->|Consume Jobs| Worker
+    Worker -->|Upsert Traces & Spans| Postgres
+    Worker -->|Publish Events| Redis
+
+    API -->|Read/Write| Postgres
+    Prisma -.-> Postgres
+
+    Dashboard -->|REST / SSE Streaming| API
+    Worker -->|HITL Approval Card| Slack
+    CLI -->|POST /regression-checks| API
+```
 
 ```text
 ai-agent-platform-complete/
@@ -29,15 +77,15 @@ ai-agent-platform-complete/
 ## 🖥️ 2. Dashboard UI Interface Walkthrough
 
 ````carousel
-![AI Observability Dashboard Main Overview](/Users/uday/Documents/AI/ai-agent-platform-complete/docs/assets/images/dashboard_main.png)
+![AI Observability Dashboard Main Overview](docs/assets/images/dashboard_main.png)
 <!-- slide -->
-![Prompt Sandbox & Benchmark Studio](/Users/uday/Documents/AI/ai-agent-platform-complete/docs/assets/images/prompts_playground.png)
+![Prompt Sandbox & Benchmark Studio](docs/assets/images/prompts_playground.png)
 <!-- slide -->
-![Human-in-the-Loop Governance & Alerts Queue](/Users/uday/Documents/AI/ai-agent-platform-complete/docs/assets/images/alerts_governance.png)
+![Human-in-the-Loop Governance & Alerts Queue](docs/assets/images/alerts_governance.png)
 <!-- slide -->
-![Slack Block Kit & Webhooks Integrations Channel](/Users/uday/Documents/AI/ai-agent-platform-complete/docs/assets/images/integrations_slack.png)
+![Slack Block Kit & Webhooks Integrations Channel](docs/assets/images/integrations_slack.png)
 <!-- slide -->
-![Code Integration Onboarding for Node & Python SDKs](/Users/uday/Documents/AI/ai-agent-platform-complete/docs/assets/images/onboarding_sdk.png)
+![Code Integration Onboarding for Node & Python SDKs](docs/assets/images/onboarding_sdk.png)
 ````
 
 ---
