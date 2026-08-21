@@ -29,7 +29,7 @@ flowchart TB
     end
 
     subgraph DataStorage ["Database & Storage"]
-        Postgres[(PostgreSQL 16 Database)]
+        Postgres[("PostgreSQL 16 Database")]
         Prisma["Prisma ORM (Schema & Seed)"]
     end
 
@@ -39,21 +39,21 @@ flowchart TB
         CLI["@aap/cli (CI/CD Regression Gate)"]
     end
 
-    NodeSDK -->|POST /ingest (Async 202)| API
-    PySDK -->|POST /ingest (Async 202)| API
+    NodeSDK -->|"POST /ingest (Async 202)"| API
+    PySDK -->|"POST /ingest (Async 202)"| API
     LangChain --> PySDK
 
-    API -->|Enqueue Jobs| Redis
-    Redis -->|Consume Jobs| Worker
-    Worker -->|Upsert Traces & Spans| Postgres
-    Worker -->|Publish Events| Redis
+    API -->|"Enqueue Jobs"| Redis
+    Redis -->|"Consume Jobs"| Worker
+    Worker -->|"Upsert Traces & Spans"| Postgres
+    Worker -->|"Publish Events"| Redis
 
-    API -->|Read/Write| Postgres
+    API -->|"Read / Write"| Postgres
     Prisma -.-> Postgres
 
-    Dashboard -->|REST / SSE Streaming| API
-    Worker -->|HITL Approval Card| Slack
-    CLI -->|POST /regression-checks| API
+    Dashboard -->|"REST / SSE Streaming"| API
+    Worker -->|"HITL Approval Card"| Slack
+    CLI -->|"POST /regression-checks"| API
 ```
 
 ```text
