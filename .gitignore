@@ -34,5 +34,7 @@ dump.rdb
 Thumbs.db
 
 # Documentation
-docs/
-
+docs/*.md
+docs/**/*.md
+!docs/assets/
+!docs/assets/**
