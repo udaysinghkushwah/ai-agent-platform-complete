@@ -336,6 +336,7 @@ For technical deep-dives into specific subsystems, consult the comprehensive arc
 | 🤖 **Agentic AI Interview Q&A** | Top 25 Architect Q&As on ReAct loops, LangGraph vs Temporal, MCP protocols, Multi-agent swarms | [AGENTIC_AI_INTERVIEW_QUESTIONS_AND_ANSWERS.md](docs/AGENTIC_AI_INTERVIEW_QUESTIONS_AND_ANSWERS.md) |
 | 🚀 **Zero-to-Hero AI Architect Roadmap** | Complete Phase 0 to Stage 6 roadmap with 8 flow diagrams, math formulas, & 40 Q&As | [ZERO_TO_HERO_AI_ARCHITECT_INTERVIEW_ROADMAP.md](docs/ZERO_TO_HERO_AI_ARCHITECT_INTERVIEW_ROADMAP.md) |
 | 🏛️ **Comprehensive AI Architect Blueprint** | Complete master blueprint covering all Tiers 1-45 & Stage 6 with 7-step evaluation matrix | [ENTERPRISE_AI_LLM_ARCHITECT_COMPREHENSIVE_BLUEPRINT.md](docs/ENTERPRISE_AI_LLM_ARCHITECT_COMPREHENSIVE_BLUEPRINT.md) |
+| 🏆 **Full Master Tier-by-Tier Blueprint** | Exhaustive breakdown of Tiers 1-45 individually with formulas, code, & flow diagrams | [FULL_MASTER_AI_LLM_ARCHITECT_TIER_BY_TIER_BLUEPRINT.md](docs/FULL_MASTER_AI_LLM_ARCHITECT_TIER_BY_TIER_BLUEPRINT.md) |
 
 ---
 
