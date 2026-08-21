@@ -24,20 +24,20 @@ This guide details the architectural implementation of the **Tool Interceptor Po
 
 ```mermaid
 flowchart TD
-    Agent["AI Agent (Node / Python SDK)"] --> Interceptor{"1. Check Tool Policy\n(POST /policy-checks)"}
+    Agent["AI Agent (Node / Python SDK)"] --> Interceptor{"1. Check Tool Policy<br/>(POST /policy-checks)"}
     
-    Interceptor -->|ALLOWED| ExecuteTool["Execute Tool Function"]
-    Interceptor -->|DENIED| BlockTool["Block Tool Execution\n(Return Policy Violation Reason)"]
-    Interceptor -->|REQUIRES_APPROVAL| PauseAgent["Pause Agent Execution & Generate PendingApproval ID"]
+    Interceptor -->|"ALLOWED"| ExecuteTool["Execute Tool Function"]
+    Interceptor -->|"DENIED"| BlockTool["Block Tool Execution<br/>(Return Policy Violation Reason)"]
+    Interceptor -->|"REQUIRES_APPROVAL"| PauseAgent["Pause Agent Execution & Generate PendingApproval ID"]
     
-    PauseAgent --> SlackCard["2. Dispatch Slack Block Kit Card\n(Interactive Approve/Reject Buttons)"]
-    PauseAgent --> DashQueue["3. Alert Human Reviewer\nin Dashboard Queue (/alerts)"]
+    PauseAgent --> SlackCard["2. Dispatch Slack Block Kit Card<br/>(Interactive Approve/Reject Buttons)"]
+    PauseAgent --> DashQueue["3. Alert Human Reviewer<br/>in Dashboard Queue (/alerts)"]
     
     SlackCard --> HumanAction{"Human Admin Action"}
     DashQueue --> HumanAction
     
-    HumanAction -->|Approve| ResolveApprove["POST /approvals/:id/resolve (status: APPROVED)"]
-    HumanAction -->|Reject| ResolveReject["POST /approvals/:id/resolve (status: REJECTED)"]
+    HumanAction -->|"Approve"| ResolveApprove["POST /approvals/:id/resolve (status: APPROVED)"]
+    HumanAction -->|"Reject"| ResolveReject["POST /approvals/:id/resolve (status: REJECTED)"]
     
     ResolveApprove --> ResumeAgent["Resume Agent Execution"]
     ResolveReject --> CancelAgent["Cancel Agent Workflow & Log Security Audit Event"]

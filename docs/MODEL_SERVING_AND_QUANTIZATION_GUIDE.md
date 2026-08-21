@@ -25,20 +25,20 @@ This guide details the architectural implementation of **vLLM High-Throughput In
 flowchart TD
     UserRequest["Client Inference Request"] --> vLLMServer["vLLM Async Engine (Port 8000)"]
     
-    vLLMServer --> PrefixCache{"1. Check Automatic Prefix Cache\n(System Prompt KV-Cache)"}
+    vLLMServer --> PrefixCache{"1. Check Automatic Prefix Cache<br/>(System Prompt KV-Cache)"}
     
-    PrefixCache -->|Cache Hit| FastKV["Reuse Pre-calculated KV Blocks\n(TTFT < 20ms)"]
-    PrefixCache -->|Cache Miss| ComputeKV["Calculate KV Tensors"]
+    PrefixCache -->|"Cache Hit"| FastKV["Reuse Pre-calculated KV Blocks<br/>(TTFT < 20ms)"]
+    PrefixCache -->|"Cache Miss"| ComputeKV["Calculate KV Tensors"]
     
-    FastKV --> PagedAttn["2. PagedAttention Manager\n(Non-Contiguous GPU VRAM Pages)"]
+    FastKV --> PagedAttn["2. PagedAttention Manager<br/>(Non-Contiguous GPU VRAM Pages)"]
     ComputeKV --> PagedAttn
     
     PagedAttn --> QuantEngine{"3. Model Quantization Precision"}
     
-    QuantEngine -->|FP8 Precision| H100GPU["NVIDIA H100 / L4 GPU\n(FP8 Tensor Cores)"]
-    QuantEngine -->|AWQ 4-bit| A10GGPU["NVIDIA A10G / RTX 4090 GPU\n(4-bit AWQ Engine)"]
+    QuantEngine -->|"FP8 Precision"| H100GPU["NVIDIA H100 / L4 GPU<br/>(FP8 Tensor Cores)"]
+    QuantEngine -->|"AWQ 4-bit"| A10GGPU["NVIDIA A10G / RTX 4090 GPU<br/>(4-bit AWQ Engine)"]
     
-    H100GPU --> TokenStream["4. Continuous Batching Stream\n(vLLM Token Output)"]
+    H100GPU --> TokenStream["4. Continuous Batching Stream<br/>(vLLM Token Output)"]
     A10GGPU --> TokenStream
     
     TokenStream --> Response["Stream SSE Tokens to Client"]

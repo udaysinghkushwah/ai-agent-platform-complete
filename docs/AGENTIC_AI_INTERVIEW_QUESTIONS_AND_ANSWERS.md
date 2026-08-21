@@ -103,9 +103,9 @@ Frameworks like **LangGraph** represent workflows as **stateful graphs with cycl
 flowchart LR
     Start([Start]) --> AgentNode["Agent Decision Node"]
     AgentNode --> ActionRouter{"Route Action?"}
-    ActionRouter -->|Execute Tool| ToolNode["Tool Execution Node"]
-    ActionRouter -->|Finish| End([End])
-    ToolNode -->|Loop Back with Result| AgentNode
+    ActionRouter -->|"Execute Tool"| ToolNode["Tool Execution Node"]
+    ActionRouter -->|"Finish"| End([End])
+    ToolNode -->|"Loop Back with Result"| AgentNode
 ```
 
 ---
@@ -427,8 +427,8 @@ flowchart TB
     end
 
     subgraph Storage ["Database Layer"]
-        Postgres[(PostgreSQL 16 - Traces, Policies, Audit Logs)]
-        VectorDB[(pgvector - Semantic Search & Tools)]
+        Postgres[("PostgreSQL 16 - Traces, Policies, Audit Logs")]
+        VectorDB[("pgvector - Semantic Search & Tools")]
     end
 
     subgraph UI ["Observability Control Plane"]
@@ -436,13 +436,13 @@ flowchart TB
         Slack["Slack Block Kit Approval Webhook"]
     end
 
-    SDKNode -->|POST /ingest (Async 202)| API
-    SDKPy -->|POST /policy-checks| API
+    SDKNode -->|"POST /ingest (Async 202)"| API
+    SDKPy -->|"POST /policy-checks"| API
     
     API --> AuthGuard
     AuthGuard --> PolicyGate
     
-    API -->|Enqueue Spans| BullMQ
+    API -->|"Enqueue Spans"| BullMQ
     BullMQ --> Worker
     
     Worker -->|Batch Upsert| Postgres

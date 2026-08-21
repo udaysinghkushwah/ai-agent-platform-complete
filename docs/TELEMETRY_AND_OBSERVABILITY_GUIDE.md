@@ -40,7 +40,7 @@ flowchart TD
     
     subgraph WorkerStorage ["Worker Processing & Storage"]
         BullWorker["BullMQ Worker Processor"]
-        PostgresDB[("PostgreSQL 16 Database\n(Traces & Spans)")]
+        PostgresDB[("PostgreSQL 16 Database<br/>(Traces & Spans)")]
     end
     
     subgraph UIClient ["Dashboard UI & Tracing"]
@@ -48,19 +48,19 @@ flowchart TD
         SSERoute["GET /projects/:projectId/traces/stream"]
     end
 
-    NodeSDK -->|Asynchronous Batch Send| IngestRoute
-    PySDK -->|Asynchronous Batch Send| IngestRoute
+    NodeSDK -->|"Asynchronous Batch Send"| IngestRoute
+    PySDK -->|"Asynchronous Batch Send"| IngestRoute
     
     IngestRoute --> ApiGuard
-    ApiGuard -->|Fast Enqueue| RedisQueue
-    IngestRoute -.->|Immediate 202 Accepted| NodeSDK
+    ApiGuard -->|"Fast Enqueue"| RedisQueue
+    IngestRoute -.->|"Immediate 202 Accepted"| NodeSDK
     
     RedisQueue --> BullWorker
-    BullWorker -->|Batch Upsert Traces & Spans| PostgresDB
-    BullWorker -->|Publish Event| RedisPubSub
+    BullWorker -->|"Batch Upsert Traces & Spans"| PostgresDB
+    BullWorker -->|"Publish Event"| RedisPubSub
     
     RedisPubSub --> SSERoute
-    SSERoute -->|Server-Sent Events| NextUI
+    SSERoute -->|"Server-Sent Events"| NextUI
 ```
 
 ---

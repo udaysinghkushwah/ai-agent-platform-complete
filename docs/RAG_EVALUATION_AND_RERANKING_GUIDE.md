@@ -25,23 +25,23 @@ This guide details the end-to-end architecture for **Hybrid Vector + BM25 Search
 flowchart TD
     Query["User Query / Eval Dataset Prompt"] --> HybridSearch{"1. Hybrid Retrieval Engine"}
     
-    HybridSearch -->|Dense Vector Search| PgVector["pgvector (HNSW Index / Cosine)"]
-    HybridSearch -->|Sparse Text Search| BM25["Postgres Full-Text / BM25"]
+    HybridSearch -->|"Dense Vector Search"| PgVector["pgvector (HNSW Index / Cosine)"]
+    HybridSearch -->|"Sparse Text Search"| BM25["Postgres Full-Text / BM25"]
     
-    PgVector --> RRF["2. Reciprocal Rank Fusion (RRF)\nRRF_Score = 1/(60 + Rank)"]
+    PgVector --> RRF["2. Reciprocal Rank Fusion (RRF)<br/>RRF_Score = 1/(60 + Rank)"]
     BM25 --> RRF
     
-    RRF --> Top50["Top-50 Candidate Chunks"] --> Reranker["3. Two-Stage Cross-Encoder Reranker\n(Cohere Rerank / BGE-Reranker-v2)"]
+    RRF --> Top50["Top-50 Candidate Chunks"] --> Reranker["3. Two-Stage Cross-Encoder Reranker<br/>(Cohere Rerank / BGE-Reranker-v2)"]
     
     Reranker --> Top3["Top-3 High-Precision Context Chunks"] --> LLM["4. LLM Generation Engine"]
     
     LLM --> Response["Generated Answer"]
     
-    Response --> WorkerQueue["5. Enqueue Async Evaluation Job\n(BullMQ Redis Queue)"]
-    WorkerQueue --> Evaluator["6. RAGAS Quality Evaluator\n(Faithfulness, Context Relevance, Answer Relevance)"]
+    Response --> WorkerQueue["5. Enqueue Async Evaluation Job<br/>(BullMQ Redis Queue)"]
+    WorkerQueue --> Evaluator["6. RAGAS Quality Evaluator<br/>(Faithfulness, Context Relevance, Answer Relevance)"]
     
     Evaluator --> EvalDb[("PostgreSQL Dataset & Evals Table")]
-    Evaluator --> CliGate["7. @aap/cli CI/CD Regression Gate\n(Exit 0 on PASS, Exit 1 on FAIL)"]
+    Evaluator --> CliGate["7. @aap/cli CI/CD Regression Gate<br/>(Exit 0 on PASS, Exit 1 on FAIL)"]
 ```
 
 ---
